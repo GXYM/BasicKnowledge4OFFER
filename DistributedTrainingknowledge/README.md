@@ -75,7 +75,13 @@
 ```
 注：W=fp16(参数)，G=fp16(梯度)，O=fp32(优化器状态)
 
-### **DeepSpeed-Zero** 
+### **DeepSpeed-ZeRO** 
+
+**0. ZeRO-0**：禁用所有类型的分片，仅使用 DeepSpeed 作为 DDP (Distributed Data Parallel) (计算完梯度需要All-Reduce， 先聚合到GPU0，在广播， 通信量2Φ)  
+**1. ZeRO-1**：
+**2. ZeRO-2**：
+**4. ZeRO-4**：
+**5. ZeRO++**：
 
 ## 3.3 Megatron-LM 
 
