@@ -13,7 +13,7 @@
 
 # 1. 分布式通信术语
 * **1. Broadcast：** 广播，一对多
-![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-1.png)  
+![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img_1.png)  
 * **2. Reduce：** 各设备上相同位置的元素进行加和，并将结果呈现在一个设备上
 ![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-2.png)  
 * **3. All Reduce：** 相当于Reduce之后再来了一个Broadcast
