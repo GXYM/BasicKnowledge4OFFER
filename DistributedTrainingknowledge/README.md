@@ -13,21 +13,40 @@
 
 # 1. 分布式通信术语
 * **1. Broadcast：** 广播，一对多
-* <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img1.png width=50% />
+<div align=center>
+  <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img1.png width=50% />
+</div>
+
 * **2. Reduce：** 各设备上相同位置的元素进行加和，并将结果呈现在一个设备上
-* <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img2.png width=50% /> 
+<div align=center>
+  <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img2.png width=50% />
+</div> 
+
 * **3. All Reduce：** 相当于Reduce之后再来了一个Broadcast
-* <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img3.png width=50% />
+<div align=center>
+  <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img3.png width=50% />
+</div>
+
 * **4. Gather：** Gather的中文叫做收集（即把东西放到一起，并不做运算），与Reduce不同的地方是，Gather只是将数据汇总到一起，而Reduce需要“按照指定的映射函数进行运算”
-* <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img4.png width=50% />   
+<div align=center>
+  <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img4.png width=50% />
+</div>
+
 * **5. All Gather：** 多对多广播 
 * **6. Scatter：** 离散，扩散；即将一个机器上的不同数据分别给到不同机器。而广播的含义是将一个机器上的数据全部传输给其他机器
-* <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img5.png width=50% />
+<div align=center>
+  <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img5.png width=50% />
+</div>
+
 * **7. Reduce Scatter：** 先广播在加和；Reduce_scatter最终呈现效果为：每个GPU上有一块完整加和后的数据。他和All reduce的区别在于，All reduce是所有完整加和的数据。
-* <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img6.png width=50% />
+<div align=center>
+  <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img6.png width=50% />
+</div>
 
 
-![](https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img7.png)
+<div align=center>
+  <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img7.png width=50% />
+</div>
 
 参考文献：[https://blog.csdn.net/cy413026/article/details/138618053](https://blog.csdn.net/cy413026/article/details/138618053)
 
@@ -38,7 +57,9 @@
 * **2.2 PS 架构**   
      PS 则包含 GPU worker 和 CPU server。迭代过程中，GPU worker 将梯度传输至 CPU server；后者将接收到的不同 workers 的梯度做聚合，然后执行 DNN 优化器（如 RMSProp 或 Adam 等）并将更新后的参数传输回 GPU workers。
 
-![](https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img8.png)
+<div align=center>
+  <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img8.png width=50% />
+</div>
 
 
 # 3. 分布式训练框架
@@ -46,7 +67,9 @@
 
 * **DDP**: 传统的数据并行, 每一个GPU卡上保存整个model的参数/梯度/优化器状态, 然后对数据集切分为 N个shard分片给不同的GPU进行训练，计算完梯度后通过all-reduce通信来做梯度的融合。
 
-![](https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img9.png)
+<div align=center>
+  <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img9.png width=50% />
+</div>
 
 * **FSDP**: 全切片数据并行(Fully Sharded Data Parallel，简称为FSDP)是数据并行的一种新的方式. 微软之前Deepspeed框架中提出过三种级别的ZERO算法，FSDP可以看成是ZERO-3的实现。核心在于要把DDP中的all-reduce操作拆解为reduce-scatter和all-gather 操作。
 
@@ -69,7 +92,9 @@
 在 DeepSpeed 中，可以通过在配置文件中设置 “bf16.enabled”: true 来启用 BF16 混合精度训练，减少占用内存。混合精度训练是指在训练过程中同时使用FP16（半精度浮点数）和FP32（单精度浮点数）两种精度的技术。  
 在使用混合精度训练时，需要注意一些问题，例如梯度裁剪（Gradient Clipping）和学习率调整（Learning Rate Schedule）等。梯度裁剪可以防止梯度爆炸，学习率调整可以帮助模型更好地收敛。因此，在设置混合精度训练时，需要根据具体情况进行选择和配置。  
 
-![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-9.png) 
+<div align=center>
+  <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img10.png width=50% />
+</div>
 
 ```
 * 存储一份fp32的parameter，momentum和variance（统称model states）
@@ -99,7 +124,9 @@ Adam优化下的optimizer states只在最终做update时才用到
 ```
 （注：ZeRO-1前期通信量为3Φ，后期进行了代码优化通信量为2Φ）
 
-![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-10.png) 
+<div align=center>
+  <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img11.png width=50% />
+</div>
 
 具体流程如下：  
 - (1) 每块GPU上存一份完整的参数W。将一个batch的数据分成3份，每块GPU各吃一份，做完一轮foward和backward后，各得一份梯度;  
@@ -111,14 +138,18 @@ Adam优化下的optimizer states只在最终做update时才用到
 
 
 **2. ZeRO-2**: 分割Optimizer States与Gradients   
-![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-11.png)
+<div align=center>
+  <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img12.png width=50% />
+</div>
 ```
 * 操  作：每个memory，只保留它分配到的optimizer state所对应的梯度。
 * 合理性：因为梯度和Optimizer是紧密联系在一起的。只知道梯度，不知道Optimizer state，是没有办法优化模型参数的。
 * 收  益：8倍显存节约，先对梯度Scatter-Reduce（部分）， 通信量为1Φ， 在对参数All-Gather (部分)， 通信量为1Φ； 所以总的通信量为2Φ。
 ```
 
-![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-12.png)
+<div align=center>
+  <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img13.png width=50% />
+</div>
 
 - (1) 每块GPU上存一份完整的参数W。将一个batch的数据分成3份，每块GPU各吃一份，做完一轮foward和backward后，算得一份完整的梯度（上图中绿色+白色）;  
 - (2) 对梯度做一次Reduce-Scatter，保证每个GPU上所维持的那块梯度是聚合梯度。例如对GPU1，它负责维护G1，因此其他的GPU只需要把G1对应位置的梯度发给GPU1做加总就可;汇总完毕后，白色块对GPU无用，可以从显存中移除。单卡通讯量 Φ ;  
@@ -126,7 +157,9 @@ Adam优化下的optimizer states只在最终做update时才用到
 
  
 **3. ZeRO-3**：分割Optimizer States、Gradients与Parameters；ZeRO-3会在forward和backward的时候，自动将模型参数分配到多个memory（16Ψ/N）
-![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-13.png)
+<div align=center>
+  <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img14.png width=50% />
+</div>
 流程如下：
 - (1) 每块GPU上只保存部分参数W。将一个batch的数据分成3份，每块GPU各吃一份；   
 - (2) 做forward时，对W做一次All-Gather，取回分布在别的GPU上的W，得到一份完整的W，单卡通讯量 Φ 。forward做完，立刻把不是自己维护的W抛弃；   
@@ -135,7 +168,9 @@ Adam优化下的optimizer states只在最终做update时才用到
 - (5) 用自己维护的O和G，更新W。由于只维护部分W，因此无需再对W做任何AllReduce操作；  
 
 **ZeRO-0 vs. ZeRO-1 vs. ZeRO-2 vs. ZeRO-3**：
-![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-14.png)
+<div align=center>
+  <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img15.png width=50% />
+</div>
 
 **4. ZeRO++**：对ZeRO-3进行了优化，3D并行化实现万亿参数模型训练；通信量减少4倍, 前向传播参数同步0.5Φ+反向传播梯度更新同步0.25Φ; 节点内部FP16—>INT8; 节点之间FP16->INT4!  
 ```
@@ -144,7 +179,9 @@ Adam优化下的optimizer states只在最终做update时才用到
 * 量化通信：通信数据量化为int8,然后反量化。
 ```
 
-![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-15.png)
+<div align=center>
+  <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img16.png width=50% />
+</div>
 
 * **量化ZeRO权重通信（qwZ）**: 减少在all-gather期间的参数通信量，我们采用了对权重的量化，该方法在通信前将每个模型参数即时从FP16（两字节）压缩到INT8（一字节）的数据类型，并在通信后对权重进行反量化!
 
@@ -165,11 +202,15 @@ Adam优化下的optimizer states只在最终做update时才用到
 * Zero（Zero Redundancy Optimizer，3D优化与卸载）：在deepspeed中通过zero_optimization.stage=0/1/2/3 设置
 * 卸载通过zero_optimization.offload_optimizer.device设置
 ```
-![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-16.png)
-![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-17.png)
+<div align=center>
+  <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img17.png width=50% />
+</div>
 
 
 ### 3.2.4 显存占用分析  
+<div align=center>
+  <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img18.png width=50% />
+</div>
 混合精度训练，同时存在fp16和fp32两种格式的数值，其中模型参数、模型梯度都是fp16，此外还有fp32的模型参数，如果优化器是Adam，则还有fp32的momentum和variance。
 总的来说，模型训练时显存主要分为两部分。
 
@@ -187,8 +228,9 @@ Adam优化下的optimizer states只在最终做update时才用到
 模型在训练过程中需要储存自身的参数和梯度（注意这里还不是Adam最后算出来的参数更新量，只是根据loss反向传播得到的原始梯度），这便需要 2Ψ+2Ψ 的内存，同时混合精度fp32训练时，Adam需要一份fp32大小的模型拷贝，momentum和variance去储存模型的优化器状态，这需要 4Ψ+4Ψ+4Ψ ，最终我们需要 16Ψ𝐵 的内存用于训练，即对于一个GPT-2模型，我们训练时需要24GB的内存，对比一张V100的显存为32GB
 
 **ZeRO-DP主要是优化第一部分的显存占用，所以这里主要介绍第一部分的显存**
-![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-18.png)
-
+<div align=center>
+  <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img19.png width=50% />
+</div>
 * **1.将权重转换为FP16**：在这一步中，神经网络的权重（或参数）最初是FP32格式，被转换为低精度的FP16格式。这减少了内存的占用，并允许更快的计算，因为FP16操作需要更少的内存，并且可以被硬件更快地处理。计算梯度：神经网络的前向和后向通道是使用较低精度的FP16权重进行的。这一步计算损失函数相对于网络权重的梯度（部分导数），在优化过程中用于更新权重。  
 * **2.将梯度转换为FP32**：在FP16中计算梯度后，它们被转换回高精度的FP32格式。这种转换对于保持数值稳定性和避免使用低精度算术时可能出现的梯度消失或爆炸等问题至关重要。乘以学习率和更新权重：现在是FP32格式，梯度被乘以学习率（一个标量值，决定了优化过程中的步长）。乘积被用来更新原始FP32神经网络权重。学习率有助于控制优化过程的收敛性，对于实现良好的性能至关重要。
     
@@ -279,24 +321,29 @@ batch size和序列长度：假设batch size为1，序列长度为1024。
 
 ## 3.3 Megatron-LM 
 是由 NVIDIA 应用深度学习研究团队开发的大型、强大的 transformer 模型框架; 论文：https://arxiv.org/pdf/1909.08053
-
-![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-17.png)
+<div align=center>
+  <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img20.png width=50% />
+</div>
 
 布式环境初始化，即按照DP/TP/PP对进程进行分组，并为每个进程指定GPU。例如：CodeGeeX在预训练中采用的是8头TP（同一个node内的8张卡做TP，8张卡组成一个完整的模型），192头DP（192个node间做DP），一共1536块GPU进行。  
 
-![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-17.png)
+<div align=center>
+  <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img21.png width=50% />
+</div>
 
 ### 3.3.1 张量并行(Tensor Parallelism，算模型并行的一种)  
 每个张量都被分成多个块，因此张量的每个分片都位于其指定的 GPU 上，而不是让整个张量驻留在单个 GPU 上。在处理过程中，每个分片在不同的 GPU 上分别并行处理，结果在步骤结束时同步。这就是所谓的水平并行，因为是做的水平拆分
 
-![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-17.png)
+<div align=center>
+  <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img22.png width=50% />
+</div>
 
 ### 3.3.2 流水线并行Pipeline Parallelism(模型并行的另一种)
 朴素流水线并行 (naive PP) 是将模型各层分组分布在多个 GPU 上，并简单地将数据从 GPU 移动到 GPU，就好像它是一个大型复合 GPU 一样。该机制相对简单 - 将所需层用 .to() 方法绑到相应设备，现在只要数据进出这些层，这些层就会将数据切换到与该层相同的设备，其余部分保持不变  
 这其实就是垂直模型并行(类似画大多数模型的拓扑图，垂直切分模型各层的)，例如，下图显示一个 8 层模型  
-![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-17.png)
-
-
+<div align=center>
+  <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img23.png width=50% />
+</div>
 
 ## 3.4 Megatron-DeepSpeed
 
