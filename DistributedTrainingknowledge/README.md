@@ -27,6 +27,8 @@
 ![](https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img6.png)  
 
 
+![](https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img7.png)
+
 参考文献：[https://blog.csdn.net/cy413026/article/details/138618053](https://blog.csdn.net/cy413026/article/details/138618053)
 
 # 2. 分布式通信架构
@@ -36,13 +38,15 @@
 * **2.2 PS 架构**   
      PS 则包含 GPU worker 和 CPU server。迭代过程中，GPU worker 将梯度传输至 CPU server；后者将接收到的不同 workers 的梯度做聚合，然后执行 DNN 优化器（如 RMSProp 或 Adam 等）并将更新后的参数传输回 GPU workers。
 
-![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-8.png)     
+![](https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img8.png)
 
 
 # 3. 分布式训练框架
 ## 3.1 Pytorch原生支持DDP, FSDP
 
 * **DDP**: 传统的数据并行, 每一个GPU卡上保存整个model的参数/梯度/优化器状态, 然后对数据集切分为 N个shard分片给不同的GPU进行训练，计算完梯度后通过all-reduce通信来做梯度的融合。
+
+![](https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img9.png)
 
 * **FSDP**: 全切片数据并行(Fully Sharded Data Parallel，简称为FSDP)是数据并行的一种新的方式. 微软之前Deepspeed框架中提出过三种级别的ZERO算法，FSDP可以看成是ZERO-3的实现。核心在于要把DDP中的all-reduce操作拆解为reduce-scatter和all-gather 操作。
 
