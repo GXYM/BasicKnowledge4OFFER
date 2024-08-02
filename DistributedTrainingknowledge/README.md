@@ -1,33 +1,19 @@
 
-<h2 align="center"> <a href="https://arxiv.org/abs/2407.11677">Video-Language Alignment via Spatio–Temporal Graph Transformer (STGT)</a></h2>
+<h2 align="center"> <a href="">大模型分布式加速训练方法基础知识总结</a></h2>
 <h5 align="center"> If you like our project, please give us a star ⭐ on GitHub for latest update.  </h2>
 
 
 
 <h5 align="center">
   
-[![arXiv](https://img.shields.io/badge/Arxiv-2407.11677-b31b1b.svg?logo=arXiv)](https://arxiv.org/abs/2407.11677)
-[![GitHub issues](https://img.shields.io/github/issues/GXYM/STGT?color=critical&label=Issues)]()
-[![GitHub closed issues](https://img.shields.io/github/issues-closed/GXYM/STGT?color=success&label=Issues)]()
-[![License](https://img.shields.io/badge/License-Apache%202.0-yellow)](https://github.com/PKU-YuanGroup/Video-LLaVA/blob/main/LICENSE)
+[![zhihu](https://img.shields.io/badge/知乎-0084FF)](https://blog.csdn.net/zwqjoy/article/details/130732601)
+[![CSDN](https://img.shields.io/badge/CSDE-yellow)](https://zhuanlan.zhihu.com/p/660567767)
 
 </h5>
 
-![](https://github.com/GXYM/STGT/blob/main/framework.png)  
-
-<details open><summary>💡 series projects:✨. </summary><p>
-<!--  may -->
-
->[ArXive] [**STGT: Video-Language Alignment via Spatio–Temporal Graph Transformer**](https://arxiv.org/abs/2407.11677)；<br>
-> Shi-Xue Zhang, Hongfa Wang, Xiaobin Zhu, Weibo Gu, Tianjin Zhang, Chun Yang, Wei Liu, Xu-Cheng Yin <br>
-[![arXiv](https://img.shields.io/badge/Arxiv-2407.11677-b31b1b.svg?logo=arXiv)](https://arxiv.org/abs/2407.11677)
-[![GitHub issues](https://img.shields.io/github/issues/GXYM/STGT?color=critical&label=Issues)]()
-[![GitHub closed issues](https://img.shields.io/github/issues-closed/GXYM/STGT?color=success&label=Issues)]()
-[![License](https://img.shields.io/badge/License-Apache%202.0-yellow)](https://github.com/PKU-YuanGroup/Video-LLaVA/blob/main/LICENSE)
 
 
-
-## 1. ToDo
+# 1. ToDo
 
 - [x] Release eval code
 - [x] Release scripts for testing
