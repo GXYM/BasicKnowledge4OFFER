@@ -273,8 +273,55 @@ batch size和序列长度：假设batch size为1，序列长度为1024。
 
 
 ## 3.3 Megatron-LM 
+是由 NVIDIA 应用深度学习研究团队开发的大型、强大的 transformer 模型框架; 论文：https://arxiv.org/pdf/1909.08053
+
+![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-17.png)
+
+布式环境初始化，即按照DP/TP/PP对进程进行分组，并为每个进程指定GPU。例如：CodeGeeX在预训练中采用的是8头TP（同一个node内的8张卡做TP，8张卡组成一个完整的模型），192头DP（192个node间做DP），一共1536块GPU进行。  
+
+![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-17.png)
+
+### 3.3.1 张量并行(Tensor Parallelism，算模型并行的一种)  
+每个张量都被分成多个块，因此张量的每个分片都位于其指定的 GPU 上，而不是让整个张量驻留在单个 GPU 上。在处理过程中，每个分片在不同的 GPU 上分别并行处理，结果在步骤结束时同步。这就是所谓的水平并行，因为是做的水平拆分
+
+![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-17.png)
+
+### 3.3.2 流水线并行Pipeline Parallelism(模型并行的另一种)
+朴素流水线并行 (naive PP) 是将模型各层分组分布在多个 GPU 上，并简单地将数据从 GPU 移动到 GPU，就好像它是一个大型复合 GPU 一样。该机制相对简单 - 将所需层用 .to() 方法绑到相应设备，现在只要数据进出这些层，这些层就会将数据切换到与该层相同的设备，其余部分保持不变  
+这其实就是垂直模型并行(类似画大多数模型的拓扑图，垂直切分模型各层的)，例如，下图显示一个 8 层模型  
+![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-17.png)
+
+
 
 ## 3.4 Megatron-DeepSpeed
+
+DeepSpeed团队通过将“下面第一项与后面三项相结合”，开发了一种基于3D并行的实现，这就是Megatron-Deepspeed，它使得千亿级参数量以上的大规模语言模型比如BLOOM的分布式训练变得更简单、高效和有效.  
+
+**(1) Megatron-LM中的张量并行(Tensor Parallelism，可以理解为模型并行的一种)**  
+每个张量都被分成多个块，因此张量的每个分片都位于其指定的 GPU 上，而不是让整个张量驻留在单个 GPU 上。在处理过程中，每个分片在不同的 GPU 上分别并行处理，结果在步骤结束时同步。这就是所谓的水平并行，因为是做的水平拆分
+
+**(2) 零冗余优化器 (Zero Redundancy Optimizer，简称ZeRO，是微软DeepSpeed库的核心)**  
+也执行与 TP 相类似的张量分片，但整个张量会及时重建以进行前向或反向计算，因此不需要修改模型。它还支持各种卸载技术以补偿有限的 GPU 内存
+
+
+**(3) 数据并行(Data Parallelism)**  
+相同的设置和模型被复制多份，每份每次都被馈送不同的一份数据。处理是并行完成的，所有份在每个训练步结束时同步
+
+**(4) 管道并行(也称流水线并行，Pipeline Parallelism)** 
+模型在多个 GPU 上垂直 (即按层) 拆分，因此只有一个或多个模型层放置在单个 GPU 上。每个 GPU 并行处理流水线的不同阶段，并处理 batch 的一部分数据
+
+
+
+
+# 4. 参考文献
+1. https://blog.csdn.net/cy413026/article/details/138618053
+2. https://blog.csdn.net/zwqjoy/article/details/130732601
+3. https://zhuanlan.zhihu.com/p/634377071
+4. https://zhuanlan.zhihu.com/p/709639748
+5. [《Megatron-LM: Training Multi-Billion Parameter Language Models Using Model Parallelism》](https://arxiv.org/pdf/1909.08053)
+
+
+
 
 
 
