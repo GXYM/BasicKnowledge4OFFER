@@ -125,14 +125,20 @@
 **ZeRO-0 vs. ZeRO-1 vs. ZeRO-2 vs. ZeRO-3**：
 ![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-14.png)
 
-**4. ZeRO++**：对ZeRO-3进行了优化，3D并行化实现万亿参数模型训练
+**4. ZeRO++**：对ZeRO-3进行了优化，3D并行化实现万亿参数模型训练；通信量减少4倍, 前向传播参数同步0.5Φ+反向传播梯度更新同步0.25Φ; 节点内部FP16—>INT8; 节点之间FP16->INT4!  
 ```
 * 模型参数：模型参数每台服务器保存一份，服务器内部参数分布存储；
 * 分层计算：每台服务器内部先更新参数，然后在服务器之间同步；
 * 量化通信：通信数据量化为int8,然后反量化。
 ```
-通信量减少4倍
-（前向传播参数同步0.5Φ+反向传播梯度更新同步0.25Φ）节点内部FP16—>INT8; 节点之间FP16INT4!
+
+![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-15.png)
+
+量化ZeRO权重通信（qwZ）: 减少在all-gather期间的参数通信量，我们采用了对权重的量化，该方法在通信前将每个模型参数即时从FP16（两字节）压缩到INT8（一字节）的数据类型，并在通信后对权重进行反量化!
+
+量化ZeRO梯度通信（qgZ）: ZeRO 在后向计算完成之后需要一次 Reduce-Scatter 通信，如果直接将量化策略应用到 Reduce-Scatter 通信的话，包含超过一系列的量化和反量化操作（量化压缩后的数据以为所有 GPU 的平均数），这不仅需要较大的巨大的计算开销，还会带来额外的通信量； 为减少量化和反量化操作次数，首先对全部梯度量化，然后所有GPU进行一次All-to-All通信，最后执行反量化操作。
+
+分层切片hpZ：为了减少反向传播过程中权重上的 all-gather 通信开销，我们选择用 GPU 内存来换取通信。具体而言，我们并不是像在 ZeRO 中那样将整个模型权重分布在所有的机器中，而是在每台机器内维护一份完整的模型副本。尽管这会带来更高的内存开销，但它使我们能够用机器内的 all-gather/broadcast 替换昂贵的跨机器 all-gather/broadcast，由于机器内通信带宽更高，所以这个过程会快很多。
 
 
 
