@@ -13,18 +13,18 @@
 
 # 1. 分布式通信术语
 * **1. Broadcast：** 广播，一对多
-![](https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img1.png)  
+* <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img1.png width=50% />
 * **2. Reduce：** 各设备上相同位置的元素进行加和，并将结果呈现在一个设备上
-![](https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img2.png)  
+* <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img2.png width=50% /> 
 * **3. All Reduce：** 相当于Reduce之后再来了一个Broadcast
-![](https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img3.png)  
+* <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img3.png width=50% />
 * **4. Gather：** Gather的中文叫做收集（即把东西放到一起，并不做运算），与Reduce不同的地方是，Gather只是将数据汇总到一起，而Reduce需要“按照指定的映射函数进行运算”
-![](https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img4.png)   
+* <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img4.png width=50% />   
 * **5. All Gather：** 多对多广播 
 * **6. Scatter：** 离散，扩散；即将一个机器上的不同数据分别给到不同机器。而广播的含义是将一个机器上的数据全部传输给其他机器
-![](https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img5.png) 
+* <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img5.png width=50% />
 * **7. Reduce Scatter：** 先广播在加和；Reduce_scatter最终呈现效果为：每个GPU上有一块完整加和后的数据。他和All reduce的区别在于，All reduce是所有完整加和的数据。
-![](https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img6.png)  
+* <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img6.png width=50% />
 
 
 ![](https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img7.png)
