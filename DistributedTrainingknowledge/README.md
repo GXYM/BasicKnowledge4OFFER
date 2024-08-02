@@ -13,7 +13,8 @@
 
 
 # 1. 分布式通信术语
-* **1. Broadcast：** 广播，一对多  
+* **1. Broadcast：** 广播，一对多
+  ![](https://github.com/GXYM/TextBPN-Plus-Plus/blob/main/vis/framework.png)  
 * **2. Reduce：** 各设备上相同位置的元素进行加和，并将结果呈现在一个设备上  
 * **3. All Reduce：** 相当于Reduce之后再来了一个Broadcast  
 * **4. Gather：** Gather的中文叫做收集（即把东西放到一起，并不做运算），与Reduce不同的地方是，Gather只是将数据汇总到一起，而Reduce需要“按照指定的映射函数进行运算”。  
