@@ -39,6 +39,8 @@
   ![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-7.png)     
 
 
+# 3. 分布式训练框架
+##  3.1 DeepSpeed
 
 
 ## 2. Prepare Dataset   
