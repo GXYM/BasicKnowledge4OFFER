@@ -1,4 +1,4 @@
-
+![image](https://github.com/user-attachments/assets/fa5c53c8-99fc-4720-a874-6f9210efd9bb)
 <h2 align="center"> <a href="">大模型分布式加速训练方法基础知识总结</a></h2>
 <h5 align="center"> If you like our project, please give us a star ⭐ on GitHub for latest update.  </h2>
 
@@ -13,16 +13,16 @@
 
 
 
-# 1. ToDo
+# 1. 分布式通信术语
+* **1. Broadcast：** 广播，一对多  
+* **2. Reduce：** 各设备上相同位置的元素进行加和，并将结果呈现在一个设备上  
+* **3. All Reduce：** 相当于Reduce之后再来了一个Broadcast  
+* **4. Gather：** Gather的中文叫做收集（即把东西放到一起，并不做运算），与Reduce不同的地方是，Gather只是将数据汇总到一起，而Reduce需要“按照指定的映射函数进行运算”。  
+* **5. All Gather：** 多对多广播  
+* **6. Scatter：** 离散，扩散；即将一个机器上的不同数据分别给到不同机器。而广播的含义是将一个机器上的数据全部传输给其他机器  
+* **7. Reduce Scatter：** 先广播在加和；Reduce_scatter最终呈现效果为：每个GPU上有一块完整加和后的数据。他和All reduce的区别在于，All reduce是所有完整加和的数据。  
 
-- [x] Release eval code
-- [x] Release scripts for testing
-- [x] Release pre-trained models
-- [x] Release fine-tune models on each benchmarks
-- [ ] Release train codes
-- [ ] Release train scripts
 
-NOTE：After the paper is accepted, we will open source the code of train.
 
 ## 2. Prepare Dataset   
 1. Download the corresponding video data through the [download_scripts.](https://github.com/GXYM/TextBPN/blob/main/vis/1.png)  we have collected.
