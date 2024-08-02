@@ -77,11 +77,17 @@
 
 ### **DeepSpeed-ZeRO** 
 
-**0. ZeRO-0**：禁用所有类型的分片，仅使用 DeepSpeed 作为 DDP (Distributed Data Parallel) (计算完梯度需要All-Reduce， 先聚合到GPU0，在广播， 通信量2Φ)  
-**1. ZeRO-1**：
-**2. ZeRO-2**：
-**4. ZeRO-4**：
-**5. ZeRO++**：
+**0. ZeRO-0**: 禁用所有类型的分片，仅使用 DeepSpeed 作为 DDP (Distributed Data Parallel) (计算完梯度需要All-Reduce， 先聚合到GPU0，在广播， 通信量2Φ)  
+
+**1. ZeRO-1**:  分割Optimizer states (优化器状态包括一份fp32的模型参数副本、 Adam优化器的两个参数<momentum, variance>),  不同优化器参数数量不一样， SGD只有Momentum.
+
+优化器参数被划分到多个memory上，每个momoey上的进程只负责更新它自己那部分参数。减少了4倍的内存，通信容量与数据并行性相同 (4倍显存节约) （先对梯度All-Reduce(所有) 2E， 在对参数All-Gather（部分） 1E，通信量3E）（先对梯度Reduce Scatter（部分） 1E， 在对参数All-Gather (部分) 1E, 2E）
+
+
+
+**2. ZeRO-2**：  
+**3. ZeRO-3**：  
+**4. ZeRO++**：  
 
 ## 3.3 Megatron-LM 
 
