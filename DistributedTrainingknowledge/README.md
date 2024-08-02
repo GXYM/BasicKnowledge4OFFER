@@ -51,8 +51,6 @@
 
 
 
-1. Download the corresponding video data through the [download_scripts.](https://github.com/GXYM/TextBPN/blob/main/vis/1.png)  we have collected.
-
 
 
 
