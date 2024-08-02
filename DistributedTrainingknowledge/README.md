@@ -2,7 +2,7 @@
 <h2 align="center"> <a href="">大模型分布式加速训练方法基础知识总结</a></h2>
 <h5 align="center"> If you like our project, please give us a star ⭐ on GitHub for latest update.  </h2>
 
-
+![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-1.png)  
 
 <h5 align="center">
   
