@@ -47,7 +47,7 @@
 
 
 ## 3.2 DeepSpeed
-### **DeepSpeed基础特性** 
+### **3.2.1 DeepSpeed基础特性** 
 
 **1. DeepSpeed Sparse Attention**： 用6倍速度执行10倍长的序列： DeepSpeed提供了稀疏 attention kernel 一种工具性技术，可支持长序列的模型输入，包括文本输入，图像输入和语音输入。与经典的稠密 Transformer 相比，它支持的输入序列长一个数量级，并在保持相当的精度下获得最高 6 倍的执行速度提升。它还比最新的稀疏实现快 1.5–3 倍。此外，我们的稀疏 kernel 灵活支持稀疏格式，使用户能够通过自定义稀疏结构进行创新。  
 
@@ -82,7 +82,7 @@ Adam优化下的optimizer states只在最终做update时才用到
 ```
 
 
-### **DeepSpeed-ZeRO** 
+### **3.2.2 DeepSpeed-ZeRO** 
 
 **0. ZeRO-0**: 禁用所有类型的分片，仅使用 DeepSpeed 作为 DDP (Distributed Data Parallel) (计算完梯度需要All-Reduce， 先聚合到GPU0，在广播， 通信量2Φ)  
 
@@ -155,7 +155,7 @@ Adam优化下的optimizer states只在最终做update时才用到
 * forward和backward计算量高，因此和它们相关的部分，例如 参数W（fp16），activation，就全放入GPU  
 * update的部分计算量低，因此和它相关的部分，全部放入CPU中。例如 optimizer states（fp32）和gradients(fp16)等  
 
-### **DeepSpeed使用** 
+### **3.2.3 DeepSpeed使用** 
 ```
 * Zero（Zero Redundancy Optimizer，3D优化与卸载）：在deepspeed中通过zero_optimization.stage=0/1/2/3 设置
 * 卸载通过zero_optimization.offload_optimizer.device设置
@@ -164,7 +164,7 @@ Adam优化下的optimizer states只在最终做update时才用到
 ![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-17.png)
 
 
-### 显存占用分析  
+### 3.2.4 显存占用分析  
 混合精度训练，同时存在fp16和fp32两种格式的数值，其中模型参数、模型梯度都是fp16，此外还有fp32的模型参数，如果优化器是Adam，则还有fp32的momentum和variance。
 总的来说，模型训练时显存主要分为两部分。
 
@@ -266,12 +266,10 @@ batch size和序列长度：假设batch size为1，序列长度为1024。
 估算：1.75GB（模型参数FP16） + 1.75GB（梯度FP16） + 10.5GB（分片优化器状态） + 0.25 GB（激活显存）。
 每卡总显存占用约 1.75GB + 1.75GB + 10.5GB + 0.25 GB = 14.25G
 
-### 总结
+### 3.2.6 总结
 微软开发ZeRO是为了克服数据并行性和模型并行性的限制，同时实现两者的优点。
 * ZeRO通过在数据并行进程中划分模型状态（参数，梯度和优化器状态），而不是复制它们，从而消除了数据并行进程中的内存冗余。它在训练期间使用动态通信计划，以在分布式设备之间共享必要的状态，以保持计算粒度和数据并行性的通信量。  
 * ZeRO驱动的数据并行性，它允许每个设备的内存使用量随数据并行性的程度线性扩展，并产生与数据并行性相似的通信量。 ZeRO支持的数据并行性可以适合任意大小的模型，只要聚合的设备内存足够大以共享模型状态即可。  
-
-
 
 
 ## 3.3 Megatron-LM 
