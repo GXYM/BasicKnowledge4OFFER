@@ -63,12 +63,15 @@
 **4 混合精度训练**：  
 在 DeepSpeed 中，可以通过在配置文件中设置 “bf16.enabled”: true 来启用 BF16 混合精度训练，减少占用内存。混合精度训练是指在训练过程中同时使用FP16（半精度浮点数）和FP32（单精度浮点数）两种精度的技术。  
 在使用混合精度训练时，需要注意一些问题，例如梯度裁剪（Gradient Clipping）和学习率调整（Learning Rate Schedule）等。梯度裁剪可以防止梯度爆炸，学习率调整可以帮助模型更好地收敛。因此，在设置混合精度训练时，需要根据具体情况进行选择和配置。  
+```
+* 存储一份fp32的parameter，momentum和variance（统称model states）
+* 在forward开始之前，额外开辟一块存储空间，将fp32 parameter减半到fp16 parameter。
+* 正常做forward和backward，在此之间产生的activation和gradients，都用fp16进行存储。
+* 用fp16 gradients去更新fp32下的model states。
+* 当模型收敛后，fp32的parameter就是最终的参数输出。
+```
+注：W=fp16(参数)，G=fp16(梯度)，O=fp32(优化器状态)
 
-	存储一份fp32的parameter，momentum和variance（统称model states）
-	在forward开始之前，额外开辟一块存储空间，将fp32 parameter减半到fp16 parameter。
-	正常做forward和backward，在此之间产生的activation和gradients，都用fp16进行存储。
-	用fp16 gradients去更新fp32下的model states。
-	当模型收敛后，fp32的parameter就是最终的参数输出。
 
 
 
