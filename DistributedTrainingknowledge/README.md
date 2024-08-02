@@ -73,7 +73,7 @@
 * 用fp16 gradients去更新fp32下的model states。
 * 当模型收敛后，fp32的parameter就是最终的参数输出。
 ```
-注：W=fp16(参数)，G=fp16(梯度)，O=fp32(优化器状态)
+注：W=fp16(参数 2Ψ)，G=fp16(梯度 2Ψ)，O=fp32(优化器状态 4Ψ+4Ψ+4Ψ=12Ψ)，假设模型参数在INT8下模型的参数大小为Ψ.
 
 ### **DeepSpeed-ZeRO** 
 
@@ -81,7 +81,7 @@
 
 **1. ZeRO-1**:  分割Optimizer states (优化器状态包括一份fp32的模型参数副本、 Adam优化器的两个参数<momentum, variance>),  不同优化器参数数量不一样， SGD只有Momentum. 
 ```
-* 优化器参数被划分到多个memory上，每个momoey上的进程只负责更新它自己那部分参数。通信容量与数据并行性相同, 但可以减少了4倍的显存；
+* 操  作：优化器参数被划分到多个memory上，每个momoey上的进程只负责更新它自己那部分参数。通信容量与数据并行性相同, 但可以减少了4倍的显存；
 * 优化前：ZeRO-1采用先对梯度All-Reduce(所有)，通信量为2Φ；在对参数All-Gather（部分），通信量为2Φ；所以总的通信量为3Φ；
 * 优化后：先对梯度Reduce Scatter（部分）， 通信量为1Φ； 在对参数All-Gather (部分)，通信量为1Φ； 总的通信量为2Φ；
 ```
@@ -100,8 +100,9 @@
 
 **1. ZeRO-2**: 分割Optimizer States与Gradients   
 ```
-* 每个memory，只保留它分配到的optimizer state所对应的梯度。这很合理，因为梯度和Optimizer是紧密联系在一起的。只知道梯度，不知道Optimizer state，是没有办法优化模型参数的。
-* 8倍显存节约，先对梯度Scatter-Reduce（部分）， 通信量为1Φ， 在对参数All-Gather (部分)， 通信量为1Φ； 所以总的通信量为2Φ
+* 操  作：每个memory，只保留它分配到的optimizer state所对应的梯度。
+* 合理性：因为梯度和Optimizer是紧密联系在一起的。只知道梯度，不知道Optimizer state，是没有办法优化模型参数的。
+* 收  益：8倍显存节约，先对梯度Scatter-Reduce（部分）， 通信量为1Φ， 在对参数All-Gather (部分)， 通信量为1Φ； 所以总的通信量为2Φ。
 ```
 
 分割Optimizer states (优化器状态包括一份fp32的模型参数副本、 Adam优化器的两个参数<momentum, variance>),  不同优化器参数数量不一样， SGD只有Momentum.  
