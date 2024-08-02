@@ -154,7 +154,7 @@
 * 卸载通过zero_optimization.offload_optimizer.device设置
 ```
 ![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-16.png)
-
+![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-17.png)
 
 
 
