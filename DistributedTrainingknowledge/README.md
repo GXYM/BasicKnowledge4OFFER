@@ -134,11 +134,27 @@
 
 ![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-15.png)
 
-量化ZeRO权重通信（qwZ）: 减少在all-gather期间的参数通信量，我们采用了对权重的量化，该方法在通信前将每个模型参数即时从FP16（两字节）压缩到INT8（一字节）的数据类型，并在通信后对权重进行反量化!
+* **量化ZeRO权重通信（qwZ）**: 减少在all-gather期间的参数通信量，我们采用了对权重的量化，该方法在通信前将每个模型参数即时从FP16（两字节）压缩到INT8（一字节）的数据类型，并在通信后对权重进行反量化!
 
-量化ZeRO梯度通信（qgZ）: ZeRO 在后向计算完成之后需要一次 Reduce-Scatter 通信，如果直接将量化策略应用到 Reduce-Scatter 通信的话，包含超过一系列的量化和反量化操作（量化压缩后的数据以为所有 GPU 的平均数），这不仅需要较大的巨大的计算开销，还会带来额外的通信量； 为减少量化和反量化操作次数，首先对全部梯度量化，然后所有GPU进行一次All-to-All通信，最后执行反量化操作。
+* **量化ZeRO梯度通信（qgZ）**: ZeRO 在后向计算完成之后需要一次 Reduce-Scatter 通信，如果直接将量化策略应用到 Reduce-Scatter 通信的话，包含超过一系列的量化和反量化操作（量化压缩后的数据以为所有 GPU 的平均数），这不仅需要较大的巨大的计算开销，还会带来额外的通信量； 为减少量化和反量化操作次数，首先对全部梯度量化，然后所有GPU进行一次All-to-All通信，最后执行反量化操作。
 
-分层切片hpZ：为了减少反向传播过程中权重上的 all-gather 通信开销，我们选择用 GPU 内存来换取通信。具体而言，我们并不是像在 ZeRO 中那样将整个模型权重分布在所有的机器中，而是在每台机器内维护一份完整的模型副本。尽管这会带来更高的内存开销，但它使我们能够用机器内的 all-gather/broadcast 替换昂贵的跨机器 all-gather/broadcast，由于机器内通信带宽更高，所以这个过程会快很多。
+* **分层切片hpZ**：为了减少反向传播过程中权重上的 all-gather 通信开销，我们选择用 GPU 内存来换取通信。具体而言，我们并不是像在 ZeRO 中那样将整个模型权重分布在所有的机器中，而是在每台机器内维护一份完整的模型副本。尽管这会带来更高的内存开销，但它使我们能够用机器内的 all-gather/broadcast 替换昂贵的跨机器 all-gather/broadcast，由于机器内通信带宽更高，所以这个过程会快很多。
+
+**5.ZeRO vs 模型并行** 
+
+虽然ZeRO把参数W给切了，但ZeRO是模型并行的形式，数据并行的实质。模型并行，是指在forward和backward的过程中，我只需要用自己维护的那块W来计算就行。即同样的输入X，每块GPU上各算模型的一部分，最后通过某些方式聚合结果。但对ZeRO来说，它做forward和backward的时候，是需要把各GPU上维护的W聚合起来的，即本质上还是用完整的W进行计算。它是不同的输入X，完整的参数W，最终再做聚合。
+
+**6.ZeRO-Offload** 
+* forward和backward计算量高，因此和它们相关的部分，例如 参数W（fp16），activation，就全放入GPU  
+* update的部分计算量低，因此和它相关的部分，全部放入CPU中。例如 optimizer states（fp32）和gradients(fp16)等  
+
+### **DeepSpeed使用** 
+```
+* Zero（Zero Redundancy Optimizer，3D优化与卸载）：在deepspeed中通过zero_optimization.stage=0/1/2/3 设置
+* 卸载通过zero_optimization.offload_optimizer.device设置
+```
+![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-16.png)
+
 
 
 
