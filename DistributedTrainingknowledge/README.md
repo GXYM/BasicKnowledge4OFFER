@@ -157,6 +157,25 @@
 ![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-17.png)
 
 
+### 显存占用分析  
+混合精度训练，同时存在fp16和fp32两种格式的数值，其中模型参数、模型梯度都是fp16，此外还有fp32的模型参数，如果优化器是Adam，则还有fp32的momentum和variance。
+总的来说，模型训练时显存主要分为两部分。
+
+* 存储主要分为两大块：Model States和Residual States:
+```
+* Model States指和模型本身息息相关的，必须存储的内容，具体包括：
+* optimizer states：Adam优化算法中的momentum和variance
+* gradients：模型梯度
+* parameters：模型参数W
+* Residual States指并非模型必须的，但在训练过程中会额外产生的内容，具体包括：
+* activation：激活值。在流水线并行中我们曾详细介绍过。在backward过程中使用链式法则计算梯度时会用到。有了它算梯度会更快，但它不是必须存储的，因为可以通过重新做Forward来算它。
+* temporary buffers: 临时存储。例如把梯度发送到某块GPU上做加总聚合时产生的存储。
+* unusable fragment memory：碎片化的存储空间。虽然总存储空间是够的，但是如果取不到连续的存储空间，相关的请求也会被fail掉。对这类空间浪费可以通过内存整理来解决。
+```
+模型在训练过程中需要储存自身的参数和梯度（注意这里还不是Adam最后算出来的参数更新量，只是根据loss反向传播得到的原始梯度），这便需要 2Ψ+2Ψ 的内存，同时混合精度fp32训练时，Adam需要一份fp32大小的模型拷贝，momentum和variance去储存模型的优化器状态，这需要 4Ψ+4Ψ+4Ψ ，最终我们需要 16Ψ𝐵 的内存用于训练，即对于一个GPT-2模型，我们训练时需要24GB的内存，对比一张V100的显存为32GB
+
+
+
 
 ## 3.3 Megatron-LM 
 
