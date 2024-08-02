@@ -73,16 +73,45 @@
 * 用fp16 gradients去更新fp32下的model states。
 * 当模型收敛后，fp32的parameter就是最终的参数输出。
 ```
-注：W=fp16(参数)，G=fp16(梯度)，O=fp32(优化器状态)
+注：W=fp16(参数) 1Φ，G=fp16(梯度) 1Φ，O=fp32(优化器状态) 2Φ
 
 ### **DeepSpeed-ZeRO** 
 
 **0. ZeRO-0**: 禁用所有类型的分片，仅使用 DeepSpeed 作为 DDP (Distributed Data Parallel) (计算完梯度需要All-Reduce， 先聚合到GPU0，在广播， 通信量2Φ)  
 
-**1. ZeRO-1**:  分割Optimizer states (优化器状态包括一份fp32的模型参数副本、 Adam优化器的两个参数<momentum, variance>),  不同优化器参数数量不一样， SGD只有Momentum.  
-* 优化器参数被划分到多个memory上，每个momoey上的进程只负责更新它自己那部分参数。通信容量与数据并行性相同, 但可以减少了4倍的显存，
-* 优化前：ZeRO-1采用先对梯度All-Reduce(所有)，通信量为2Φ；在对参数All-Gather（部分），通信量为2Φ；所以总的通信量为2Φ
-* 先对梯度Reduce Scatter（部分） 1Φ， 在对参数All-Gather (部分) 1Φ, 2Φ）
+**1. ZeRO-1**:  分割Optimizer states (优化器状态包括一份fp32的模型参数副本、 Adam优化器的两个参数<momentum, variance>),  不同优化器参数数量不一样， SGD只有Momentum. 
+```
+* 优化器参数被划分到多个memory上，每个momoey上的进程只负责更新它自己那部分参数。通信容量与数据并行性相同, 但可以减少了4倍的显存；
+* 优化前：ZeRO-1采用先对梯度All-Reduce(所有)，通信量为2Φ；在对参数All-Gather（部分），通信量为2Φ；所以总的通信量为3Φ；
+* 优化后：先对梯度Reduce Scatter（部分）， 通信量为1Φ； 在对参数All-Gather (部分)，通信量为1Φ； 总的通信量为2Φ；
+```
+（注：ZeRO-1前期通信量为3Φ，后期进行了代码优化通信量为2Φ）
+
+![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-10.png) 
+
+具体流程如下：  
+- (1) 每块GPU上存一份完整的参数W。将一个batch的数据分成3份，每块GPU各吃一份，做完一轮foward和backward后，各得一份梯度;  
+- (2) 对梯度做一次AllReduce，得到完整的梯度G，产生单卡通讯量 2Φ 。为了表达简明，这里通讯量我们就不再换算成byte了，而直接根据参数量来计算;   
+- (3) 得到完整梯度G，就可以对W做更新。我们知道W的更新由Optimizer states;      
+- (4) 此时，每块GPU上都有部分W没有完成更新（图中白色部分）。所以我们需要对W做一次All-Gather，从别的GPU上把更新好的部分W取回来。产生单卡通讯量 Φ ;   
+
+在实操中，可以只对梯度做一次scatter-reduce，并用各自维护的optimizer去更新对应的W，然后再对W做all-gather使得每块卡上都有更新后的完整W，这样通讯量就是 2Φ 。因为论文定义stage1只有optimizer是切开的，意味着G和W都是完整的。所以对G做all-reduce（虽然拿回完整的G并没有意义），对W做all-gather，这样通讯量就是 3Φ 。deepspeed的某次代码更新是将stage1的通讯量从 3Φ 降至 2Φ ，可能也是基于此做了改进。
+
+
+**1. ZeRO-2**: 分割Optimizer States与Gradients   
+```
+* 每个memory，只保留它分配到的optimizer state所对应的梯度。这很合理，因为梯度和Optimizer是紧密联系在一起的。只知道梯度，不知道Optimizer state，是没有办法优化模型参数的。
+* 8倍显存节约，先对梯度Scatter-Reduce（部分）， 通信量为1Φ， 在对参数All-Gather (部分)， 通信量为1Φ； 所以总的通信量为2Φ
+```
+
+分割Optimizer states (优化器状态包括一份fp32的模型参数副本、 Adam优化器的两个参数<momentum, variance>),  不同优化器参数数量不一样， SGD只有Momentum.  
+* 优化器参数被划分到多个memory上，每个momoey上的进程只负责更新它自己那部分参数。通信容量与数据并行性相同, 但可以减少了4倍的显存；
+* 优化前：ZeRO-1采用先对梯度All-Reduce(所有)，通信量为2Φ；在对参数All-Gather（部分），通信量为2Φ；所以总的通信量为3Φ；
+* 优化后：先对梯度Reduce Scatter（部分）， 通信量为1Φ； 在对参数All-Gather (部分)，通信量为1Φ； 总的通信量为2Φ；  
+（注：ZeRO-1前期通信量为3Φ，后期进行了代码优化通信量为2Φ）
+
+
+
 
 
 
