@@ -138,14 +138,14 @@ Adam优化下的optimizer states只在最终做update时才用到
 
 
 **2. ZeRO-2**: 分割Optimizer States与Gradients   
-<div align=center>
-  <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img12.png width=50% />
-</div>
 ```
 * 操  作：每个memory，只保留它分配到的optimizer state所对应的梯度。
 * 合理性：因为梯度和Optimizer是紧密联系在一起的。只知道梯度，不知道Optimizer state，是没有办法优化模型参数的。
 * 收  益：8倍显存节约，先对梯度Scatter-Reduce（部分）， 通信量为1Φ， 在对参数All-Gather (部分)， 通信量为1Φ； 所以总的通信量为2Φ。
 ```
+<div align=center>
+  <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img12.png width=50% />
+</div>  
 
 <div align=center>
   <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img13.png width=50% />
@@ -160,8 +160,9 @@ Adam优化下的optimizer states只在最终做update时才用到
 <div align=center>
   <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img14.png width=50% />
 </div>
-流程如下：
-- (1) 每块GPU上只保存部分参数W。将一个batch的数据分成3份，每块GPU各吃一份；   
+
+流程如下：  
+- (1) 每块GPU上只保存部分参数W。将一个batch的数据分成3份，每块GPU各吃一份；     
 - (2) 做forward时，对W做一次All-Gather，取回分布在别的GPU上的W，得到一份完整的W，单卡通讯量 Φ 。forward做完，立刻把不是自己维护的W抛弃；   
 - (3) 做backward时，对W做一次All-Gather，取回完整的W，单卡通讯量 Φ 。backward做完，立刻把不是自己维护的W抛弃；  
 - (4) 做完backward，算得一份完整的梯度G，对G做一次Reduce-Scatter，从别的GPU上聚合自己维护的那部分梯度，单卡通讯量 Φ 。聚合操作结束后，立刻把不是自己维护的G抛弃。
@@ -211,6 +212,7 @@ Adam优化下的optimizer states只在最终做update时才用到
 <div align=center>
   <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img18.png width=50% />
 </div>
+
 混合精度训练，同时存在fp16和fp32两种格式的数值，其中模型参数、模型梯度都是fp16，此外还有fp32的模型参数，如果优化器是Adam，则还有fp32的momentum和variance。
 总的来说，模型训练时显存主要分为两部分。
 
@@ -231,6 +233,7 @@ Adam优化下的optimizer states只在最终做update时才用到
 <div align=center>
   <img src=https://github.com/GXYM/BasicKnowledge4OFFER/blob/main/DistributedTrainingknowledge/dkimgs/img19.png width=50% />
 </div>
+
 * **1.将权重转换为FP16**：在这一步中，神经网络的权重（或参数）最初是FP32格式，被转换为低精度的FP16格式。这减少了内存的占用，并允许更快的计算，因为FP16操作需要更少的内存，并且可以被硬件更快地处理。计算梯度：神经网络的前向和后向通道是使用较低精度的FP16权重进行的。这一步计算损失函数相对于网络权重的梯度（部分导数），在优化过程中用于更新权重。  
 * **2.将梯度转换为FP32**：在FP16中计算梯度后，它们被转换回高精度的FP32格式。这种转换对于保持数值稳定性和避免使用低精度算术时可能出现的梯度消失或爆炸等问题至关重要。乘以学习率和更新权重：现在是FP32格式，梯度被乘以学习率（一个标量值，决定了优化过程中的步长）。乘积被用来更新原始FP32神经网络权重。学习率有助于控制优化过程的收敛性，对于实现良好的性能至关重要。
     
