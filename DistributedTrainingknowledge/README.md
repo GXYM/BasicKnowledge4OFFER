@@ -99,10 +99,7 @@
 
 
 **2. ZeRO-2**: 分割Optimizer States与Gradients   
-
 ![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-11.png)
-
-
 ```
 * 操  作：每个memory，只保留它分配到的optimizer state所对应的梯度。
 * 合理性：因为梯度和Optimizer是紧密联系在一起的。只知道梯度，不知道Optimizer state，是没有办法优化模型参数的。
@@ -111,16 +108,13 @@
 
 ![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-12.png)
 
-
 - (1) 每块GPU上存一份完整的参数W。将一个batch的数据分成3份，每块GPU各吃一份，做完一轮foward和backward后，算得一份完整的梯度（上图中绿色+白色）;  
 - (2) 对梯度做一次Reduce-Scatter，保证每个GPU上所维持的那块梯度是聚合梯度。例如对GPU1，它负责维护G1，因此其他的GPU只需要把G1对应位置的梯度发给GPU1做加总就可;汇总完毕后，白色块对GPU无用，可以从显存中移除。单卡通讯量 Φ ;  
 - (3) 每块GPU用自己对应的O和G去更新相应的W。更新完毕后，每块GPU维持了一块更新完毕的W。同理，对W做一次All-Gather，将别的GPU算好的W同步到自己这来, 单卡通讯量 Φ.  
 
  
 **3. ZeRO-3**：分割Optimizer States、Gradients与Parameters；ZeRO-3会在forward和backward的时候，自动将模型参数分配到多个memory（16Ψ/N）
-
 ![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-13.png)
-
 流程如下：
 - (1) 每块GPU上只保存部分参数W。将一个batch的数据分成3份，每块GPU各吃一份；   
 - (2) 做forward时，对W做一次All-Gather，取回分布在别的GPU上的W，得到一份完整的W，单卡通讯量 Φ 。forward做完，立刻把不是自己维护的W抛弃；   
@@ -128,12 +122,19 @@
 - (4) 做完backward，算得一份完整的梯度G，对G做一次Reduce-Scatter，从别的GPU上聚合自己维护的那部分梯度，单卡通讯量 Φ 。聚合操作结束后，立刻把不是自己维护的G抛弃。
 - (5) 用自己维护的O和G，更新W。由于只维护部分W，因此无需再对W做任何AllReduce操作；  
 
-**ZeRO-0 vs. ZeRO-1 vs. ZeRO-2 vs. ZeRO-2**：
+**ZeRO-0 vs. ZeRO-1 vs. ZeRO-2 vs. ZeRO-3**：
 ![](https://github.com/GXYM/BasicKnowledge4OFFER/tree/main/DistributedTrainingknowledge/DTK-imgs/img-14.png)
 
+**4. ZeRO++**：对ZeRO-3进行了优化，3D并行化实现万亿参数模型训练
+```
+* 模型参数：模型参数每台服务器保存一份，服务器内部参数分布存储；
+* 分层计算：每台服务器内部先更新参数，然后在服务器之间同步；
+* 量化通信：通信数据量化为int8,然后反量化。
+```
+通信量减少4倍
+（前向传播参数同步0.5Φ+反向传播梯度更新同步0.25Φ）节点内部FP16—>INT8; 节点之间FP16INT4!
 
 
-**4. ZeRO++**：  
 
 ## 3.3 Megatron-LM 
 
