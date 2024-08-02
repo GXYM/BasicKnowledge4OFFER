@@ -73,7 +73,7 @@
 * 用fp16 gradients去更新fp32下的model states。
 * 当模型收敛后，fp32的parameter就是最终的参数输出。
 ```
-注：W=fp16(参数) 1Φ，G=fp16(梯度) 1Φ，O=fp32(优化器状态) 4Φ
+注：W=fp16(参数)，G=fp16(梯度)，O=fp32(优化器状态)
 
 ### **DeepSpeed-ZeRO** 
 
